@@ -1,64 +1,78 @@
 from ast import Str
 from platform import node
 import sys
+from collections import deque
 
-
+# --- SOS GPS --- 
+# https://aoc.meilisearch.com/
 
 class Node:
    def __init__(self, data):
+      self.parent = None
       self.left = None
       self.right = None
       self.data = data
 
-
-
 leafs = []
+
+def setParents(root :Node , parent : Node):
+    if root:
+        root.parent = parent
+        setParents(root.left , root)
+        # Finally recur on right child
+        setParents(root.right, root)
+
+def printNodeTrail ( node  : Node ):
+    act_node = node
+    #if act_node: print("Trail of node : " , act_node.data)
+    ans  = ""
+    while act_node:
+        #print( "> ", act_node.data)
+        ans = act_node.data +ans
+        act_node =  act_node.parent
+    print(ans)
+    return ans 
+
+
+
+
+def levelOrder(root : Node ):
+    if root is None :
+        return
+
+    toVisit = deque()
+    toVisit.append((root , 0))
+    
+    while toVisit:
+        (visit , level) = toVisit.popleft()
+        if level == 11 and visit.left is None and visit.right  is None:
+            printNodeTrail(visit)
+        if visit.left:
+            toVisit.append((visit.left , level +1))
+        if visit.right:
+            toVisit.append((visit.right, level+1))
+
+
 def printTree(node : Node, level=0):
     global leafs
     if node != None:
         printTree(node.left, level + 1)
-        print(" "*level + node.data+ " " + str(level) + ("" if node.left or node.right else "+++"))
+        #print(" "*level + node.data+ " " + str(level) + ("" if node.left or node.right else "+++"))
 
         if node.left is None and node.right is None:
             leafs.append(( node.data, level ))
         printTree(node.right, level + 1)
-
-
-def minimumDepth(root :Node, level):
-    if (root == None):
-        if (level == 11):
-            print("o")
-        return (  "", level)
- 
-    level += 1
-     
-    minl =minimumDepth(root.left, level)
-    minr = minimumDepth(root.right, level)
-    if minl[1] <= minr[1]:
-        return (root.data  + minl[0] , minl[1] ) 
-    else:
-        return (root.data  + minr[0] , minr[1] ) 
-
-
 
 def idx_dismatch(sa,sb):
     for i , (ca,cb)  in enumerate( zip(sa,sb)):
         if ca != cb: return i
     return min (len(sa) , len(sb))
 
-
 def match_generate( node :Node , residue : Str , level : int):
 
-    if level > 20 :
+    if level > 50 :
         return 
 
-
-    
-    #print("+++++++++++++++++++++++")
-    #print("node :" , node.data)
-    #print("res :" , residue)
-    #print("+++++++++++++++++++++++")
-    
 
     equals =idx_dismatch( node.data , residue)
 
@@ -105,11 +119,6 @@ while True:
         break
     root = match_generate(root , line , 0)    
     
-printTree(root)
-#print (leafs)
-#print ( minimumDepth(root , 0))
-#print(min(leafs, key = lambda t: t[1]))
-#%%
-
-
-# gertrudis
+setParents(root , None)
+#printTree(root)
+levelOrder(root)

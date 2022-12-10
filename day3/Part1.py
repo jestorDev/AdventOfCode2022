@@ -14,7 +14,7 @@ def priority (item):
 lines  = []
 
 for line in sys.stdin:
-    
+
     line = line.strip()
     compartment1 = line[:len(line)//2]
     compartment2 = line[len(line)//2:]
@@ -33,4 +33,3 @@ for line in sys.stdin:
 
 print("--------------------")
 print ("max :" , total_priority)
-#
